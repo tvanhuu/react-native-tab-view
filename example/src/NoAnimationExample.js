@@ -1,25 +1,19 @@
 /* @flow */
 
 import * as React from 'react';
-import {
-  Animated,
-  View,
-  TouchableWithoutFeedback,
-  StyleSheet,
-} from 'react-native';
+import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import {
   TabView,
   SceneMap,
   type Route,
   type NavigationState,
 } from 'react-native-tab-view';
+import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import Albums from './shared/Albums';
 import Article from './shared/Article';
 import Chat from './shared/Chat';
 import Contacts from './shared/Contacts';
-
-const AnimatedIcon = Animated.createAnimatedComponent(Ionicons);
 
 type State = NavigationState<
   Route<{
@@ -53,10 +47,12 @@ export default class TopBarIconExample extends React.Component<*, State> {
 
   _renderLabel = ({ position, navigationState }) => ({ route, index }) => {
     const inputRange = navigationState.routes.map((x, i) => i);
-    const outputRange = inputRange.map(
-      inputIndex => (inputIndex === index ? '#2196f3' : '#939393')
+    const outputRange = inputRange.map(inputIndex =>
+      inputIndex === index
+        ? Animated.color(33, 250, 243)
+        : Animated.color(147, 147, 147)
     );
-    const color = position.interpolate({
+    const color = Animated.interpolate(position, {
       inputRange,
       outputRange,
     });
@@ -69,26 +65,30 @@ export default class TopBarIconExample extends React.Component<*, State> {
 
   _renderIcon = ({ navigationState, position }) => ({ route, index }) => {
     const inputRange = navigationState.routes.map((x, i) => i);
-    const filledOpacity = position.interpolate({
+    const filledOpacity = Animated.interpolate(position, {
       inputRange,
       outputRange: inputRange.map(i => (i === index ? 1 : 0)),
     });
-    const outlineOpacity = position.interpolate({
+    const outlineOpacity = Animated.interpolate(position, {
       inputRange,
       outputRange: inputRange.map(i => (i === index ? 0 : 1)),
     });
     return (
       <View style={styles.iconContainer}>
-        <AnimatedIcon
-          name={route.icon}
-          size={26}
-          style={[styles.icon, { opacity: filledOpacity }]}
-        />
-        <AnimatedIcon
-          name={route.icon + '-outline'}
-          size={26}
-          style={[styles.icon, styles.outline, { opacity: outlineOpacity }]}
-        />
+        <Animated.View>
+          <Ionicons
+            name={route.icon}
+            size={26}
+            style={[styles.icon, { opacity: filledOpacity }]}
+          />
+        </Animated.View>
+        <Animated.View>
+          <Ionicons
+            name={route.icon + '-outline'}
+            size={26}
+            style={[styles.icon, styles.outline, { opacity: outlineOpacity }]}
+          />
+        </Animated.View>
       </View>
     );
   };
@@ -127,7 +127,6 @@ export default class TopBarIconExample extends React.Component<*, State> {
         renderTabBar={this._renderTabBar}
         tabBarPosition="bottom"
         onIndexChange={this._handleIndexChange}
-        animationEnabled={false}
         swipeEnabled={false}
       />
     );

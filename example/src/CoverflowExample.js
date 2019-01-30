@@ -1,20 +1,13 @@
 /* @flow */
 
 import * as React from 'react';
-import {
-  Animated,
-  View,
-  Image,
-  Text,
-  Dimensions,
-  StyleSheet,
-} from 'react-native';
+import { View, Image, Text, Dimensions, StyleSheet } from 'react-native';
 import {
   TabView,
-  PagerPan,
   type Route,
   type NavigationState,
 } from 'react-native-tab-view';
+import Animated from 'react-native-reanimated';
 
 type State = NavigationState<
   Route<{
@@ -71,17 +64,17 @@ export default class CoverflowExample extends React.Component<*, State> {
       }
     });
 
-    const translateX = position.interpolate({
+    const translateX = Animated.interpolate(position, {
       inputRange,
       outputRange: translateOutputRange,
       extrapolate: 'clamp',
     });
-    const scale = position.interpolate({
+    const scale = Animated.interpolate(position, {
       inputRange,
       outputRange: scaleOutputRange,
       extrapolate: 'clamp',
     });
-    const opacity = position.interpolate({
+    const opacity = Animated.interpolate(position, {
       inputRange,
       outputRange: opacityOutputRange,
       extrapolate: 'clamp',
@@ -109,15 +102,12 @@ export default class CoverflowExample extends React.Component<*, State> {
     </Animated.View>
   );
 
-  _renderPager = props => <PagerPan {...props} />;
-
   render() {
     return (
       <TabView
         style={[styles.container, this.props.style]}
         navigationState={this.state}
         renderTabBar={this._renderTabBar}
-        renderPager={this._renderPager}
         renderScene={this._renderScene}
         onIndexChange={this._handleIndexChange}
         initialLayout={initialLayout}

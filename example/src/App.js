@@ -1,6 +1,6 @@
 /* @flow */
 
-import Expo from 'expo';
+import { registerRootComponent } from 'expo';
 import * as React from 'react';
 import {
   AsyncStorage,
@@ -18,7 +18,6 @@ import TopBarIconExample from './TopBarIconExample';
 import BottomBarIconTextExample from './BottomBarIconTextExample';
 import NoAnimationExample from './NoAnimationExample';
 import CoverflowExample from './CoverflowExample';
-import NativeDriverExample from './NativeDriverExample';
 
 const PERSISTENCE_KEY = 'index_persistence';
 
@@ -28,7 +27,6 @@ const EXAMPLE_COMPONENTS = [
   BottomBarIconTextExample,
   NoAnimationExample,
   CoverflowExample,
-  NativeDriverExample,
 ];
 
 type State = {
@@ -234,4 +232,4 @@ const styles = StyleSheet.create({
   },
 });
 
-Expo.registerRootComponent(ExampleList);
+registerRootComponent(ExampleList);

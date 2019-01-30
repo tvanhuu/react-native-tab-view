@@ -1,9 +1,7 @@
 /* @flow */
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import {
-  Animated,
   NativeModules,
   StyleSheet,
   View,
@@ -12,12 +10,12 @@ import {
   I18nManager,
 } from 'react-native';
 import TouchableItem from './TouchableItem';
-import { SceneRendererPropType } from './PropTypes';
-import type { Scene, SceneRendererProps } from './TypeDefinitions';
+import type { Scene, SceneRendererProps } from './types';
 import type {
   ViewStyleProp,
   TextStyleProp,
 } from 'react-native/Libraries/StyleSheet/StyleSheet';
+import Animated from 'react-native-reanimated';
 
 type IndicatorProps<T> = SceneRendererProps<T> & {
   width: number,
@@ -50,28 +48,7 @@ type State = {|
   initialOffset: ?{| x: number, y: number |},
 |};
 
-const useNativeDriver = Boolean(NativeModules.NativeAnimatedModule);
-
 export default class TabBar<T: *> extends React.Component<Props<T>, State> {
-  static propTypes = {
-    ...SceneRendererPropType,
-    scrollEnabled: PropTypes.bool,
-    bounces: PropTypes.bool,
-    pressColor: TouchableItem.propTypes.pressColor,
-    pressOpacity: TouchableItem.propTypes.pressOpacity,
-    getLabelText: PropTypes.func,
-    getAccessible: PropTypes.func,
-    getAccessibilityLabel: PropTypes.func,
-    getTestID: PropTypes.func,
-    renderIcon: PropTypes.func,
-    renderLabel: PropTypes.func,
-    renderIndicator: PropTypes.func,
-    onTabPress: PropTypes.func,
-    onTabLongPress: PropTypes.func,
-    labelStyle: PropTypes.any,
-    style: PropTypes.any,
-  };
-
   static defaultProps = {
     getLabelText: ({ route }: Scene<T>) =>
       typeof route.title === 'string' ? route.title.toUpperCase() : route.title,
@@ -111,10 +88,6 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
     };
   }
 
-  componentDidMount() {
-    this.props.scrollEnabled && this._startTrackingPosition();
-  }
-
   componentDidUpdate(prevProps: Props<T>) {
     const prevTabWidth = this._getTabWidth(prevProps);
     const currentTabWidth = this._getTabWidth(this.props);
@@ -140,55 +113,12 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
     }
   }
 
-  componentWillUnmount() {
-    this._stopTrackingPosition();
-  }
-
   _scrollView: ?ScrollView;
   _isIntial: boolean = true;
   _isManualScroll: boolean = false;
   _isMomentumScroll: boolean = false;
   _pendingIndex: ?number;
   _scrollResetCallback: any;
-  _lastPanX: ?number;
-  _lastOffsetX: ?number;
-  _panXListener: string;
-  _offsetXListener: string;
-
-  _startTrackingPosition = () => {
-    this._offsetXListener = this.props.offsetX.addListener(({ value }) => {
-      this._lastOffsetX = value;
-      this._handlePosition();
-    });
-    this._panXListener = this.props.panX.addListener(({ value }) => {
-      this._lastPanX = value;
-      this._handlePosition();
-    });
-  };
-
-  _stopTrackingPosition = () => {
-    this.props.offsetX.removeListener(this._offsetXListener);
-    this.props.panX.removeListener(this._panXListener);
-  };
-
-  _handlePosition = () => {
-    const { navigationState, layout } = this.props;
-
-    if (layout.width === 0) {
-      // Don't do anything if we don't have layout yet
-      return;
-    }
-
-    const panX = typeof this._lastPanX === 'number' ? this._lastPanX : 0;
-    const offsetX =
-      typeof this._lastOffsetX === 'number'
-        ? this._lastOffsetX
-        : -navigationState.index * layout.width;
-
-    const value = (panX + offsetX) / -(layout.width || 0.001);
-
-    this._adjustScroll(value);
-  };
 
   _renderLabel = (scene: Scene<*>) => {
     if (typeof this.props.renderLabel !== 'undefined') {
@@ -212,7 +142,7 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
     const { width, position, navigationState } = props;
     const translateX = Animated.multiply(
       Animated.multiply(
-        position.interpolate({
+        Animated.interpolate(position, {
           inputRange: [0, navigationState.routes.length - 1],
           outputRange: [0, navigationState.routes.length - 1],
           extrapolate: 'clamp',
@@ -402,7 +332,7 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
                   },
                 },
               ],
-              { useNativeDriver }
+              { useNativeDriver: true }
             )}
             onScrollBeginDrag={this._handleBeginDrag}
             onScrollEndDrag={this._handleEndDrag}
@@ -417,7 +347,7 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
               );
               const opacity = Animated.multiply(
                 this.state.visibility,
-                position.interpolate({
+                Animated.interpolate(position, {
                   inputRange,
                   outputRange,
                 })

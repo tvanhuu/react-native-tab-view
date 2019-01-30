@@ -1,7 +1,7 @@
 /* @flow */
 
 import * as React from 'react';
-import { Animated, View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   TabView,
@@ -10,6 +10,7 @@ import {
   type Route,
   type NavigationState,
 } from 'react-native-tab-view';
+import Animated from 'react-native-reanimated';
 import Albums from './shared/Albums';
 import Article from './shared/Article';
 import Contacts from './shared/Contacts';
@@ -69,26 +70,20 @@ export default class BottomBarIconExample extends React.Component<*, State> {
       2,
     ];
 
-    const scale = position.interpolate({
+    const scale = Animated.interpolate(position, {
       inputRange,
       outputRange: inputRange.map(x => (Math.trunc(x) === x ? 2 : 0.1)),
     });
-    const opacity = position.interpolate({
+    const opacity = Animated.interpolate(position, {
       inputRange,
       outputRange: inputRange.map(x => {
         const d = x - Math.trunc(x);
         return d === 0.49 || d === 0.51 ? 0 : 1;
       }),
     });
-    const translateX = position.interpolate({
+    const translateX = Animated.interpolate(position, {
       inputRange: inputRange,
       outputRange: inputRange.map(x => Math.round(x) * width),
-    });
-    const backgroundColor = position.interpolate({
-      inputRange,
-      outputRange: inputRange.map(
-        x => props.navigationState.routes[Math.round(x)].color
-      ),
     });
 
     return (
@@ -96,10 +91,7 @@ export default class BottomBarIconExample extends React.Component<*, State> {
         style={[styles.container, { width, transform: [{ translateX }] }]}
       >
         <Animated.View
-          style={[
-            styles.indicator,
-            { backgroundColor, opacity, transform: [{ scale }] },
-          ]}
+          style={[styles.indicator, { opacity, transform: [{ scale }] }]}
         />
       </Animated.View>
     );
