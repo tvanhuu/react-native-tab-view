@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
         overflow: Platform.OS === 'web' ? ('auto': any) : 'scroll'
     },
     tabBar: {
-        backgroundColor: 'white',
+        backgroundColor: '#F9FAFB',
         elevation: 4,
         shadowColor: 'black',
         shadowOpacity: 0.1,
@@ -494,8 +494,8 @@ const styles = StyleSheet.create({
     },
     tabLabel: {
         backgroundColor: 'transparent',
-        color: 'white'
-        // margin: 8
+        color: 'white',
+        fontSize: 10
     },
     tabItem: {
         flex: 1,
